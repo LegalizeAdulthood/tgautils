@@ -263,14 +263,14 @@ void main(int argc, char **argv)
                                                 if ( OutputTGAFile( fp, outFile, &f ) < 0 )
                                                 {
                                                         fclose( outFile );
-                                                        unlink( outFileName );
+                                                        remove( outFileName );
                                                 }
                                                 else
                                                 {
                                                         fclose( outFile );
                                                         fclose( fp );
                                                         fp = (FILE *)0;
-                                                        unlink( fileName );
+                                                        remove( fileName );
                                                         rename( outFileName, fileName );
                                                 }
                                         }

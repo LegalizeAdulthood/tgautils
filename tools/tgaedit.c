@@ -366,7 +366,7 @@ void main(int argc, char **argv)
                                                 if ( OutputTGAFile( fp, outFile, &f, &nf, xTGA, &statbuf ) < 0 )
                                                 {
                                                         fclose( outFile );
-                                                        unlink( outFileName );
+                                                        remove( outFileName );
                                                         puts( "Error writing output file. No changes made." );
                                                 }
                                                 else
@@ -374,7 +374,7 @@ void main(int argc, char **argv)
                                                         fclose( outFile );
                                                         fclose( fp );
                                                         fp = (FILE *)0;
-                                                        unlink( fileName );
+                                                        remove( fileName );
                                                         rename( outFileName, fileName );
                                                 }
                                         }
