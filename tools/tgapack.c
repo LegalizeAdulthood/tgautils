@@ -26,13 +26,15 @@
 **              -version                report version number of program
 */
 
+#include <config/string_case_compare.h>
+
+#include <tga.h>
 #include <malloc.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include "tga.h"
+#include <sys/types.h>
 
 /*
 ** Define byte counts associated with extension areas for various
@@ -663,9 +665,9 @@ int ParseArgs(int argc, char **argv)
                 if ( *p == '-' )
                 {
                         p++;
-                        if ( stricmp( p, "unpack" ) == 0 ) unPack = 1;
-                        else if ( stricmp( p, "32to24" ) == 0 ) noAlpha = 1;
-                        else if ( stricmp( p, "version" ) == 0 )
+                        if ( string_case_compare( p, "unpack" ) == 0 ) unPack = 1;
+                        else if ( string_case_compare( p, "32to24" ) == 0 ) noAlpha = 1;
+                        else if ( string_case_compare( p, "version" ) == 0 )
                         {
                                 puts( versionStr );
                                 exit( 0 );

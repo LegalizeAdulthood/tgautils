@@ -36,6 +36,8 @@
 #include <sys/stat.h>
 #include "tga.h"
 
+#include <config/string_case_compare.h>
+
 /*
 ** Define byte counts associated with extension areas for various
 ** versions of the TGA specification.
@@ -1392,14 +1394,14 @@ int ParseArgs(int argc, char **argv)
                 if ( *p == '-' )
                 {
                         p++;
-                        if ( stricmp( p, "noprompt" ) == 0 ) noPrompt = 1;
-                        else if ( stricmp( p, "nostamp" ) == 0 ) noStamp = 1;
-                        else if ( stricmp( p, "all" ) == 0 ) allFields = 1;
-                        else if ( stricmp( p, "noextend" ) == 0 ) noExtend = 1;
-                        else if ( stricmp( p, "nodev" ) == 0 ) noDev = 1;
-                        else if ( stricmp( p, "nocolor" ) == 0 ) noColor = 1;
-                        else if ( stricmp( p, "noscan" ) == 0 ) noScan = 1;
-                        else if ( stricmp( p, "version" ) == 0 )
+                        if ( string_case_compare( p, "noprompt" ) == 0 ) noPrompt = 1;
+                        else if ( string_case_compare( p, "nostamp" ) == 0 ) noStamp = 1;
+                        else if ( string_case_compare( p, "all" ) == 0 ) allFields = 1;
+                        else if ( string_case_compare( p, "noextend" ) == 0 ) noExtend = 1;
+                        else if ( string_case_compare( p, "nodev" ) == 0 ) noDev = 1;
+                        else if ( string_case_compare( p, "nocolor" ) == 0 ) noColor = 1;
+                        else if ( string_case_compare( p, "noscan" ) == 0 ) noScan = 1;
+                        else if ( string_case_compare( p, "version" ) == 0 )
                         {
                                 puts( versionStr );
                                 exit( 0 );

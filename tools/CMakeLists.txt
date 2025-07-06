@@ -4,7 +4,7 @@ find_package(truevision QUIET)
 
 function(add_tool name)
     add_executable(${name} ${name}.c)
-    target_link_libraries(${name} PUBLIC tga)
+    target_link_libraries(${name} PUBLIC tga config)
     target_folder(${name} "Tools")
 endfunction()
 

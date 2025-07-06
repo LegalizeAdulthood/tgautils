@@ -1,0 +1,8 @@
+#include "config/string_case_compare.h"
+
+#include <strings.h>
+
+int string_case_compare(const char *s1, const char *s2)
+{
+    return strcasecmp(s1, s2);
+}

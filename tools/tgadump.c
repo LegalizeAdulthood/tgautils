@@ -14,7 +14,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include "tga.h"
+#include <tga.h>
 
 extern void             main( int, char ** );
 extern void             PrintColorTable( TGAFile * );

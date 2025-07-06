@@ -11,6 +11,7 @@ set_c_standard(99)
 set(TGAUTILS_PROJECT_NAME "TGA Utilities" CACHE "STRING" "Default project name for IDEs")
 project("${TGAUTILS_PROJECT_NAME}" C)
 
+add_subdirectory(config)
 add_subdirectory(libs)
 add_subdirectory(tools)
 
