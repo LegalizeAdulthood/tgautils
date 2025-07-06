@@ -670,7 +670,7 @@ int EditDecimalNumber(char *s, long n, long *retVal, long min, long max, int war
                 memset( str, 0, 20 );
                 for ( i = 0; i < 19; ++i )
                 {
-                        c = getche();
+                        c = getchar();
                         if ( c == '\033' )
                         {
                                 putchar( '\n' );
@@ -678,7 +678,7 @@ int EditDecimalNumber(char *s, long n, long *retVal, long min, long max, int war
                         }
                         if ( c == '\n' || c == '\r' )
                         {
-                                putch( '\n' );
+                                putchar( '\n' );
                                 if ( *str == '\0' ) return( -1 );
                                 break;
                         }
@@ -687,8 +687,8 @@ int EditDecimalNumber(char *s, long n, long *retVal, long min, long max, int war
                                 if ( p > str ) --p;
                                 if ( i > 0 ) --i;
                                 *p = '\0';
-                                putch( ' ' );
-                                putch( '\b' );
+                                putchar( ' ' );
+                                putchar( '\b' );
                         }
                         else *p++ = (char)c;
                 }
@@ -717,7 +717,7 @@ int EditHexNumber(char *s, long n, unsigned long *retVal, long min, long max, in
                 memset( str, 0, 20 );
                 for ( i = 0; i < 19; ++i )
                 {
-                        c = getche();
+                        c = getchar();
                         if ( c == '\033' )
                         {
                                 putchar( '\n' );
@@ -725,7 +725,7 @@ int EditHexNumber(char *s, long n, unsigned long *retVal, long min, long max, in
                         }
                         if ( c == '\n' || c == '\r' )
                         {
-                                putch( '\n' );
+                                putchar( '\n' );
                                 if ( *str == '\0' ) return( -1 );
                                 break;
                         }
@@ -734,8 +734,8 @@ int EditHexNumber(char *s, long n, unsigned long *retVal, long min, long max, in
                                 if ( p > str ) --p;
                                 if ( i > 0 ) --i;
                                 *p = '\0';
-                                putch( ' ' );
-                                putch( '\b' );
+                                putchar( ' ' );
+                                putchar( '\b' );
                         }
                         else *p++ = (char)c;
                 }
@@ -765,7 +765,7 @@ int EditString(char *is, int il, char *os, int ol)
         p = os;
         for ( i = 0; i < ol; ++i )
         {
-                c = getche();
+                c = getchar();
                 if ( c == '\033' )
                 {
                         putchar( '\n' );
@@ -773,7 +773,7 @@ int EditString(char *is, int il, char *os, int ol)
                 }
                 if ( c == '\n' || c == '\r' )
                 {
-                        putch( '\n' );
+                        putchar( '\n' );
                         /* remove blank string if found */
                         c = strlen( is );
                         if ( *os == '\0' && c > 0 && SkipBlank( is ) != (is + c) )
@@ -785,8 +785,8 @@ int EditString(char *is, int il, char *os, int ol)
                         if ( p > os ) --p;
                         if ( i > 0 ) --i;
                         *p = '\0';
-                        putch( ' ' );
-                        putch( '\b' );
+                        putchar( ' ' );
+                        putchar( '\b' );
                 }
                 else *p++ = (char)c;
         }
