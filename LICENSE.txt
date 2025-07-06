@@ -1,0 +1,10 @@
+The files presented here for download have originally been publicly available,
+free of charge and under no licensing terms, from TrueVision, Inc.'s  FTP server at the following URL:
+
+ftp://ftp.truevision.com/pub/TGA.File.Format.Spec/PC.Version/
+
+But have since been removed in the proceedings of Pinnacle Systems' acquisition of TrueVision, Inc.,
+as outdated. They are published here as a means of back-up of the files past the company's ownership
+change, for the purpose of enabling software developers to validate their implementations of the format.
+All of the material contained in the files above is therefore copyright to TrueVision, Inc., unless
+otherwise stated.

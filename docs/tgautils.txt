@@ -1,0 +1,163 @@
+TRUEVISION TGA(tm) UTILITIES PACKAGE - March 26, 1990
+
+
+The TGA Utilities Package contains three separate programs that can be
+used to manipulate image files that have been saved in the Truevsion
+TGA format.  This format is documented in the Truevision TGA File
+Format Specification Version 2.0 and is available from Truevision, Inc.
+
+The three programs provided are:
+
+        TGADUMP.EXE -   displays on the console device a description of the
+                        various fields contained in a Truevision TGA file.
+        
+        TGAEDIT.EXE -   provides the ability to examine and modify the
+                        contents of various control and informational fields
+                        within a TGA file.  Can also be used to convert an
+                        old style TGA file into the new extended TGA file
+                        format.
+
+        TGAPACK.EXE -   can be used to convert an uncompressed image file
+                        into a run length compressed image file, and vice
+                        versa.  Also provides an option to convert a 32
+                        bit uncompressed image into a 24 bit uncompressed
+                        image by deleting alpha channel data.
+
+
+TGADUMP takes an optional filename as an argument.  If the filename
+does not include an extension, TGADUMP will search for file with the
+base name specified, and one of the extensions: ".TGA", ".VST", ".ICB",
+".VDA", or ".WIN".  If the command is executed without an argument,
+the program will prompt for a filename.  TGADUMP does not modify the
+contents of a TGA file, but provides a means to identify various
+characteristics of a TGA file without the necessity of a TARGA or ATVISTA
+videographics adapter.
+
+TGAEDIT was designed to convert an image file from the original TGA format
+into the extended TGA format.  TGAEDIT accepts one or more filenames as
+arguments, and will search for default extensions in a manner similar to
+TGADUMP.  If more than one filename is provided as arguments, TGAEDIT will
+process each in sequence.  By default, TGAEDIT will display the contents of
+informational fields found in the input file, and will prompt the user for
+any changes desired.  Simply entering RETURN or ESC at each prompt will leave
+the value of the field unchanged.  The output file created will be in the
+extended TGA format, and by default, will contain a 64x64 postage stamp.
+Various options are available with TGAEDIT to modify this default
+behavior.  If the -noprompt option is provided, TGAEDIT will process the
+file converting it to the extended format without prompting the user
+for field values.  If the -noextend option is provided, the program will
+convert an extended TGA file back to an original TGA format.  Various
+other fields of the extended TGA file are copied to the output file by
+default, but this behavior can be suppressed by providing one of the 
+following options:
+
+        -nocolor omits the color correction table from the output file
+        -noscan omits the scan line table from the output file
+        -nodev omits the developer area from the output file
+        -nostamp omits the postage stamp from the output file
+
+Many of the control fields designating the size of the image and the pixel
+depth are not readily available for editing since changing these values
+would change the interpretation of the image data.  The ability to edit
+these fields is provided; however, by specifying the -all option.  If an
+option is provided that is not understood, the program displays the legal
+options; therefore, executing the command:
+
+        TGAEDIT -help
+
+will result in a display of the recognized options.
+
+The TGAPACK program can be used to process original TGA image files.
+This program was written to address a potential problem with run length
+encoded images that were created relative to the original TGA specification.
+In that specification, run length packets and raw packets could contain
+data that actually wrapped from one edge of the image to the other.  This
+characteristic is not allowed under the new TGA specification.  Packets in
+a run length encoded file must end with the last pixel of a scan line.  This
+is necessary to support features such as the scan line table.  There then
+needs to exist a way to convert a run length encoded file saved under the
+less restrictive characteristics of the original TGA specification into
+a run length encoded image under the current TGA specification.  TGAPACK
+can be used to accomplish this by first uncompressing the image data, and
+then processing the image file a second time, but requesting that the data
+be compressed.  As with TGAEDIT, TGAPACK accepts one or more filenames as
+arguments, and it will search for various extensions if they are not
+provided with the filename.  If the -unpack option is specified, TGAPACK
+with uncompress a compressed image file.  If no option is specified, the
+program will convert an uncompressed image file into a compressed image file.
+TGAPACK also provides one other option for use with uncompressed 32 bit
+per pixel images.  When the -32to24 option is specified, TGAPACK will
+process the image data stripping out the alpha data, thus converting the
+file to a 24 bit per pixel TGA file.  As with TGAEDIT, if an unknown option
+is provided, a summary of the options is displayed on the console.
+
+As an example of how these utilities can be used together, suppose we
+had an original 32 bit compressed TGA file named IMAGE.TGA that we wanted to
+convert to the extended format and include a postage stamp.  The following
+command might perform this operation satisfactorily:
+
+        TGAEDIT -noprompt image
+
+If successful, the resulting file named IMAGE.TGA will be a 32 bit compressed
+image in the extended format, and will include a postage stamp.  The original
+file is deleted if the conversion is successful (i.e., the output file
+replaces the input file).  If a problem occurred during the processing
+(e.g., the run length encoding did not conform to the new specification),
+the original file is preserved and an error message is displayed.  At this
+point, we would need to recompress the file to conform to the current
+specification.  This is accomplished by the following commands:
+
+        TGAPACK -unpack image
+        TGAPACK image
+
+The newly compressed file can now be processed by TGAEDIT to create the
+proper postage stamp entry and convert the file to the extended format.
+If we had wanted to remove the alpha data from the image and create a
+24 bit per pixel TGA file, we needed to process the file one more time
+using TGAPACK:
+
+        TGAPACK -unpack image
+        TGAPACK -32to24 image
+        TGAPACK image
+        TGAEDIT -noprompt image
+
+Of course, if we had wanted to examine the effects of these changes at
+any point in the process, all we needed to do is examine the file control
+information using TGADUMP.
+
+
+Two additional utilities are provided to allow the display of postage
+stamp data on an ATVista or on a TARGA.
+
+TSTAMP          - TARGA Stamp displays postage stamp on Truevision TARGA.
+                  The program loads data directly from the file with no data
+                  padding, so that 16-bit TGA files are displayed on a Targa16,
+                  24-bit TGA files will be displayed on a Targa24, etc.
+                  The source code is provided, and requires the TARGA Tools
+                  version 4.0 to be rebuilt.  Note that the function
+                  UnPackBu will need to be changed from the 4.0 version.
+                  Refer to the comments in the TSTAMP program.
+
+VSTAMP          - ATVista Stamp displays postage stamp on Truevision ATVista.
+                  This program is based on the Truevision STAGE Toolkit, and
+                  requires the STAGE driver and server files distributed with
+                  the ATVista Demo Disk version 2.0.  You must have the STAGE
+                  Toolkit version 2.0 to rebuild this program.
+
+Additional files provided with this package are sample image files that have
+been created with various pixel depths in both uncompressed and compressed
+formats.  Some of the file names and associated descriptions are as follows:
+
+        UCM8.TGA        - Uncompressed color mapped 8 bit image
+        CCM8.TGA        - Compressed color mapped 8 bit image
+        UBW8.TGA        - Uncompressed black & white 8 bit image
+        CBW8.TGA        - Compressed black & white 8 bit image
+        UTC16.TGA       - Uncompressed True Color 16 bit image
+        CTC16.TGA       - Compressed True Color 16 bit image
+        UTC24.TGA       - Uncompressed True Color 24 bit image
+        CTC24.TGA       - Compressed True Color 24 bit image
+        UTC32.TGA       - Uncompressed True Color 32 bit image
+        CTC32.TGA       - Compressed True Color 32 bit image
+
+
+Truevision Software Development Team
