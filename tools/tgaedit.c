@@ -50,7 +50,7 @@
 #define RLEBUFSIZ       512                     /* size of largest possible RLE packet */
 
 
-extern void             main( int, char ** );
+extern int              main( int, char ** );
 extern int              CountDiffPixels( char *, int, int );
 extern long             CountRLEData( FILE *, unsigned int, unsigned int, int );
 extern int              CountSamePixels( char *, int, int );
@@ -165,7 +165,7 @@ char            *versionStr =
 char            *warnStr =
 "WARNING: Changing this value may cause loss or corruption of data.";
 
-void main(int argc, char **argv)
+int main(int argc, char **argv)
 {
         int                     fileFound;
         int                     fileCount;
@@ -400,6 +400,7 @@ void main(int argc, char **argv)
                         printf("Unable to open image file %s\n", fileName );
                 }
         }
+        return 0;
 }
 
 

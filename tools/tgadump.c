@@ -15,7 +15,7 @@
 #include <sys/stat.h>
 #include <tga.h>
 
-extern void             main( int, char ** );
+extern int              main( int, char ** );
 extern void             PrintColorTable( TGAFile * );
 extern void             PrintExtendedTGA( TGAFile * );
 extern void             PrintImageType( int );
@@ -75,7 +75,7 @@ TGAFile         f;                              /* control structure of image da
 const char              *versionStr =
 "Truevision(R) TGA(tm) File Dump Utility Version 1.4 - February 15, 1992";
 
-void main(int argc, char **argv)
+int main(int argc, char **argv)
 {
         int                     fileFound;
         char            *q;
@@ -255,6 +255,7 @@ void main(int argc, char **argv)
                 if ( f.colorCorrectTable ) free( f.colorCorrectTable );
                 fclose( fp );
         }
+        return 0;
 }
 
 

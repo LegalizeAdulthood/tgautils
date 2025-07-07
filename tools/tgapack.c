@@ -45,7 +45,7 @@
 #define RLEBUFSIZ       512                     /* size of largest possible RLE packet */
 
 
-extern void     main( int, char ** );
+extern int      main( int, char ** );
 extern int      CountDiffPixels( char *, int, int );
 extern long     CountRLEData( FILE *, unsigned int, unsigned int, int );
 extern int      CountSamePixels( char *, int, int );
@@ -121,7 +121,7 @@ char            *versionStr =
 "Truevision(R) TGA(tm) File Compression Utility Version 1.3 - January 2, 1990";
 
 
-void main(int argc, char **argv)
+int main(int argc, char **argv)
 {
         int                     fileFound;
         int                     fileCount;
@@ -293,6 +293,7 @@ void main(int argc, char **argv)
                         printf("Unable to open image file %s\n", fileName );
                 }
         }
+        return 0;
 }
 
 
