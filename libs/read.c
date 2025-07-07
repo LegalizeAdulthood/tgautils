@@ -202,13 +202,13 @@ static int ReadExtendedTGA(FILE *fp, TGAFile *sp)
 
         sp->alphaAttribute = ReadByte(fp);
 
-        sp->colorCorrectTable = (UINT16 *) 0;
+        sp->colorCorrectTable = (UINT16 *) NULL;
         if (sp->colorCorrectOffset)
         {
             ReadColorTable(fp, sp);
         }
 
-        sp->postStamp = (void *) 0;
+        sp->postStamp = NULL;
         if (sp->stampOffset)
         {
             if (!fseek(fp, sp->stampOffset, SEEK_SET))
