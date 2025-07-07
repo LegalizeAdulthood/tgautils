@@ -8,6 +8,109 @@
 static char rleBuf[RLEBUFSIZ];
 static char copyBuf[CBUFSIZE];
 
+static long FileSize(FILE *fp)
+{
+    long size;
+    long pos = ftell(fp);
+    fseek(fp, 0L, SEEK_END);
+    size = ftell(fp);
+    fseek(fp, pos, SEEK_SET);
+    return size;
+}
+
+int ReadTGAFile(FILE *fp, TGAFile *sp)
+{
+    int xTGA = 0;
+    if (fp == NULL || sp == NULL)
+    {
+        return TGA_READ_ERROR_NULL_ARGUMENT;
+    }
+
+    /*
+    ** It would be nice to be able to read in the entire
+    ** structure with one fread, but compiler dependent
+    ** structure alignment precludes the simplistic approach.
+    ** Instead, fill each field individually, and use routines
+    ** that will allow code to execute on various hosts by
+    ** recompilation with particular compiler flags.
+    **
+    ** Start by reading the fields associated with the original
+    ** TGA format.
+    */
+    sp->idLength = ReadByte(fp);
+    sp->mapType = ReadByte(fp);
+    sp->imageType = ReadByte(fp);
+    sp->mapOrigin = ReadShort(fp);
+    sp->mapLength = ReadShort(fp);
+    sp->mapWidth = ReadByte(fp);
+    sp->xOrigin = ReadShort(fp);
+    sp->yOrigin = ReadShort(fp);
+    sp->imageWidth = ReadShort(fp);
+    sp->imageHeight = ReadShort(fp);
+    sp->pixelDepth = ReadByte(fp);
+    sp->imageDesc = ReadByte(fp);
+    memset(sp->idString, 0, 256);
+    if (sp->idLength > 0 && fread(sp->idString, 1, sp->idLength, fp) != sp->idLength)
+    {
+        return TGA_READ_ERROR_READ_ID;
+    }
+    /*
+    ** Now see if the file is the new (extended) TGA format.
+    */
+    if (fseek(fp, -26, SEEK_END))
+    {
+        return TGA_READ_ERROR_SEEK_END;
+    }
+    sp->extAreaOffset = ReadLong(fp);
+    sp->devDirOffset = ReadLong(fp);
+    if (fgets(sp->signature, 18, fp) == NULL)
+    {
+        return TGA_READ_ERROR_READ_SIGNATURE;
+    }
+    if (strcmp(sp->signature, "TRUEVISION-XFILE.") != 0)
+    {
+        /*
+        ** Reset offset values since this is not a new TGA file
+        */
+        sp->extAreaOffset = 0L;
+        sp->devDirOffset = 0L;
+    }
+    else
+    {
+        xTGA = 1;
+    }
+    /*
+    ** If the file is an original TGA file, and falls into
+    ** one of the uncompressed image types, we can perform
+    ** an additional file size check with very little effort.
+    */
+    if (sp->imageType > 0 && sp->imageType < 4 && !xTGA)
+    {
+        /*
+        ** Based on the header info, we should be able to calculate
+        ** the file size.
+        */
+        long fsize = 18; /* size of header in bytes */
+        fsize += sp->idLength;
+        /* expect 8, 15, 16, 24, or 32 bits per map entry */
+        fsize += ((sp->mapWidth + 7) >> 3) * (long) sp->mapLength;
+        fsize += ((sp->pixelDepth + 7) >> 3) * (long) sp->imageWidth * sp->imageHeight;
+        if (fsize != FileSize(fp))
+        {
+            return TGA_READ_ERROR_BAD_FILE_SIZE;
+        }
+    }
+    if (xTGA && sp->extAreaOffset && ReadExtendedTGA(fp, sp) < 0)
+    {
+        return TGA_READ_ERROR_READ_EXTENDED;
+    }
+    if (xTGA && sp->devDirOffset && ReadDeveloperDirectory(fp, sp) < 0)
+    {
+        return TGA_READ_ERROR_READ_DEVELOPER_DIRECTORY;
+    }
+    return 0;
+}
+
 UINT8 ReadByte(FILE *fp)
 {
     UINT8 value;

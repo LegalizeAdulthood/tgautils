@@ -194,52 +194,19 @@ int main(int argc, char **argv)
                 }
                 if ( fileFound )
                 {
+                        int readStatus;
                         printf( "Processing TGA File: %s\n", fileName );
                         fp = fopen( fileName, "rb" );
-                        /*
-                        ** It would be nice to be able to read in the entire
-                        ** structure with one fread, but compiler dependent
-                        ** structure alignment precludes the simplistic approach.
-                        ** Instead, fill each field individually, and use routines
-                        ** that will allow code to execute on various hosts by
-                        ** recompilation with particular compiler flags.
-                        **
-                        ** Start by reading the fields associated with the original
-                        ** TGA format.
-                        */
-                        f.idLength = ReadByte( fp );
-                        f.mapType = ReadByte( fp );
-                        f.imageType = ReadByte( fp );
-                        f.mapOrigin = ReadShort( fp );
-                        f.mapLength = ReadShort( fp );
-                        f.mapWidth = ReadByte( fp );
-                        f.xOrigin = ReadShort( fp );
-                        f.yOrigin = ReadShort( fp );
-                        f.imageWidth = ReadShort( fp );
-                        f.imageHeight = ReadShort( fp );
-                        f.pixelDepth = ReadByte( fp );
-                        f.imageDesc = ReadByte( fp );
-                        memset( f.idString, 0, 256 );
-                        if ( f.idLength > 0 )
+                        readStatus = ReadTGAFile( fp, &f );
+                        if ( readStatus >= 0 )
                         {
-                                fread( f.idString, 1, f.idLength, fp );
-                        }
-                        /*
-                        ** Now see if the file is the new (extended) TGA format.
-                        */
-                        if ( !fseek( fp, statbuf.st_size - 26, SEEK_SET ) )
-                        {
-                                f.extAreaOffset = ReadLong( fp );
-                                f.devDirOffset = ReadLong( fp );
-                                fgets( f.signature, 18, fp );
-                                if ( strcmp( f.signature, "TRUEVISION-XFILE." ) )
+                                if ( f.extAreaOffset != 0L )
                                 {
                                         /*
                                         ** Reset offset values since this is not a new TGA file
                                         */
                                         f.extAreaOffset = 0L;
                                         f.devDirOffset = 0L;
-                                        
                                         strcpy( outFileName, fileName );
                                         i = strlen( fileName );
                                         outFileName[ i - 3 ] = '\0';    /* remove extension */
@@ -269,7 +236,7 @@ int main(int argc, char **argv)
                         }
                         else
                         {
-                                puts( "Error seeking to end of file for possible extension data." );
+                                puts( "Error reading input file." );
                         }
                         if ( fp != NULL ) fclose( fp );
                 }

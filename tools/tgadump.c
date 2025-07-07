@@ -144,105 +144,55 @@ int main(int argc, char **argv)
         }
         if ( fileFound )
         {
+                int readStatus;
                 printf( "TGA File: %s\n", fileName );
                 fp = fopen( fileName, "rb" );
-                /*
-                ** It would be nice to be able to read in the entire
-                ** structure with one fread, but compiler dependent
-                ** structure alignment precludes the simplistic approach.
-                ** Instead, fill each field individually, and use routines
-                ** that will allow code to execute on various hosts by
-                ** recompilation with particular compiler flags.
-                **
-                ** Start by reading the fields associated with the original
-                ** TGA format.
-                */
-                f.idLength = ReadByte( fp );
-                f.mapType = ReadByte( fp );
-                f.imageType = ReadByte( fp );
-                f.mapOrigin = ReadShort( fp );
-                f.mapLength = ReadShort( fp );
-                f.mapWidth = ReadByte( fp );
-                f.xOrigin = ReadShort( fp );
-                f.yOrigin = ReadShort( fp );
-                f.imageWidth = ReadShort( fp );
-                f.imageHeight = ReadShort( fp );
-                f.pixelDepth = ReadByte( fp );
-                f.imageDesc = ReadByte( fp );
-                memset( f.idString, 0, 256 );
-                if ( f.idLength > 0 )
+                readStatus = ReadTGAFile( fp, &f );
+                if ( readStatus >= 0 )
                 {
-                        fread( f.idString, 1, f.idLength, fp );
-                }
-                PrintTGAInfo( &f );
-                /*
-                ** Now see if the file is the new (extended) TGA format.
-                */
-                xTGA = 0;
-                if ( !fseek( fp, statbuf.st_size - 26, SEEK_SET ) )
-                {
-                        f.extAreaOffset = ReadLong( fp );
-                        f.devDirOffset = ReadLong( fp );
-                        fgets( f.signature, 18, fp );
-                        if ( strcmp( f.signature, "TRUEVISION-XFILE." ) )
+                        PrintTGAInfo( &f );
+                        if ( f.extAreaOffset )
                         {
-                                /*
-                                ** Reset offset values since this is not a new TGA file
-                                */
-                                f.extAreaOffset = 0L;
-                                f.devDirOffset = 0L;
+                            PrintExtendedTGA(&f);
                         }
-                        else xTGA = 1;
-                        /*
-                        ** If the file is an original TGA file, and falls into
-                        ** one of the uncompressed image types, we can perform
-                        ** an additional file size check with very little effort.
-                        */
-                        if ( f.imageType > 0 && f.imageType < 4 && !xTGA )
-                        {
-                                /*
-                                ** Based on the header info, we should be able to calculate
-                                ** the file size.
-                                */
-                                fsize = 18;     /* size of header in bytes */
-                                fsize += f.idLength;
-                                /* expect 8, 15, 16, 24, or 32 bits per map entry */
-                                fsize += ((f.mapWidth + 7) >> 3) * (long)f.mapLength;
-                                fsize += ((f.pixelDepth+7) >> 3) * (long)f.imageWidth *
-                                                        f.imageHeight;
-                                if ( fsize != statbuf.st_size )
-                                {
-                                        puts( "Image File Format Error" );
-                                        printf("  Uncompressed File Size Should Be %ld Bytes\n",
-                                                fsize );
-                                }
-                        }
-                        if ( xTGA && f.extAreaOffset )
-                        {
-                                if ( ReadExtendedTGA( fp, &f ) >= 0 )
-                                {
-                                        PrintExtendedTGA( &f );
-                                }
-                        }
-                        if ( xTGA && f.devDirOffset )
+                        if ( f.devDirOffset )
                         {
                                 puts( "Developer Area Specified:" );
-                                if ( ReadDeveloperDirectory( fp, &f ) >= 0 )
                                 {
                                         devDirEntries = f.devTags;
                                         printf( "Developer Directory contains %d Entries\n",
                                                 devDirEntries );
                                 }
-                                else
-                                {
-                                        printf( "Error seeking to Developer Area, offset = 0x%08x\n",
-                                                f.devDirOffset );
-                                }
                         }
                 }
                 else
                 {
-                        puts( "Error seeking to end of file for possible extension data" );
+                        switch ( readStatus )
+                        {
+                        case TGA_READ_ERROR_READ_ID:
+                                puts( "Couldn't read id." );
+                                break;
+
+                        case TGA_READ_ERROR_SEEK_END:
+                                puts( "Couldn't seek to end of file." );
+                                break;
+
+                        case TGA_READ_ERROR_READ_SIGNATURE:
+                                puts( "Couldn't read TGA signature." );
+                                break;
+
+                        case TGA_READ_ERROR_BAD_FILE_SIZE:
+                                puts( "Bad image file size." );
+                                break;
+
+                        case TGA_READ_ERROR_READ_EXTENDED:
+                                puts( "Couldn't read extended TGA information." );
+                                break;
+
+                        case TGA_READ_ERROR_READ_DEVELOPER_DIRECTORY:
+                                puts( "Couldn't read developer directory." );
+                                break;
+                        }
                 }
                 FreeTGAFile( &f );
                 fclose( fp );

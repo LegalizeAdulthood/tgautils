@@ -61,8 +61,7 @@ extern int              EditDecimalNumber( char *, long int, long int *, long in
                                         long int, int );
 extern int              EditString( char *, int, char *, int );
 extern int              EditTGAFields( TGAFile * );
-extern int              OutputTGAFile( FILE *, FILE *, TGAFile *, TGAFile *, int,
-                                        struct stat * );
+extern int              OutputTGAFile(FILE *, FILE *, TGAFile *, TGAFile *, struct stat *);
 extern int              ParseArgs( int, char ** );
 extern void             PrintColorTable( TGAFile * );
 extern void             PrintExtendedTGA( TGAFile * );
@@ -155,8 +154,6 @@ int main(int argc, char **argv)
         int                     files;
         char            *q;
         FILE            *fp, *outFile;
-        long            fsize;
-        int                     xTGA;                   /* flags extended TGA file */
         int                     i;
         char            fileName[80];
         char            outFileName[80];
@@ -240,89 +237,12 @@ int main(int argc, char **argv)
                 }
                 if ( fileFound )
                 {
+                        int readError;
                         printf( "Editing TGA File: %s\n", fileName );
                         fp = fopen( fileName, "rb" );
-                        /*
-                        ** It would be nice to be able to read in the entire
-                        ** structure with one fread, but compiler dependent
-                        ** structure alignment precludes the simplistic approach.
-                        ** Instead, fill each field individually, and use routines
-                        ** that will allow code to execute on various hosts by
-                        ** recompilation with particular compiler flags.
-                        **
-                        ** Start by reading the fields associated with the original
-                        ** TGA format.
-                        */
-                        f.idLength = ReadByte( fp );
-                        f.mapType = ReadByte( fp );
-                        f.imageType = ReadByte( fp );
-                        f.mapOrigin = ReadShort( fp );
-                        f.mapLength = ReadShort( fp );
-                        f.mapWidth = ReadByte( fp );
-                        f.xOrigin = ReadShort( fp );
-                        f.yOrigin = ReadShort( fp );
-                        f.imageWidth = ReadShort( fp );
-                        f.imageHeight = ReadShort( fp );
-                        f.pixelDepth = ReadByte( fp );
-                        f.imageDesc = ReadByte( fp );
-                        memset( f.idString, 0, 256 );
-                        if ( f.idLength > 0 )
+                        readError = ReadTGAFile( fp, &f );
+                        if ( readError >= 0 )
                         {
-                                fread( f.idString, 1, f.idLength, fp );
-                        }
-                        /*
-                        ** Now see if the file is the new (extended) TGA format.
-                        */
-                        xTGA = 0;
-                        if ( !fseek( fp, statbuf.st_size - 26, SEEK_SET ) )
-                        {
-                                f.extAreaOffset = ReadLong( fp );
-                                f.devDirOffset = ReadLong( fp );
-                                fgets( f.signature, 18, fp );
-                                if ( strcmp( f.signature, "TRUEVISION-XFILE." ) )
-                                {
-                                        /*
-                                        ** Reset offset values since this is not a new TGA file
-                                        */
-                                        f.extAreaOffset = 0L;
-                                        f.devDirOffset = 0L;
-                                }
-                                else xTGA = 1;
-                                /*
-                                ** If the file is an original TGA file, and falls into
-                                ** one of the uncompressed image types, we can perform
-                                ** an additional file size check with very little effort.
-                                */
-                                if ( f.imageType > 0 && f.imageType < 4 && !xTGA )
-                                {
-                                        /*
-                                        ** Based on the header info, we should be able to calculate
-                                        ** the input file size.
-                                        */
-                                        fsize = 18;     /* size of header in bytes */
-                                        fsize += f.idLength;
-                                        /* expect 8, 15, 16, 24, or 32 bits per map entry */
-                                        fsize += ((f.mapWidth + 7) >> 3) * (long)f.mapLength;
-                                        fsize += ((f.pixelDepth + 7) >> 3) * (long)f.imageWidth *
-                                                                f.imageHeight;
-                                        if ( fsize != statbuf.st_size )
-                                        {
-                                                /*
-                                                ** Report the error, but continue to process file.
-                                                */
-                                                puts( "Image File Format Error." );
-                                                printf("  Uncompressed File Size Should Be %ld Bytes\n",
-                                                        fsize );
-                                        }
-                                }
-                                if ( xTGA && f.extAreaOffset )
-                                {
-                                        if ( ReadExtendedTGA( fp, &f ) < 0 ) exit(1);
-                                }
-                                if ( xTGA && f.devDirOffset )
-                                {
-                                        if ( ReadDeveloperDirectory( fp, &f ) < 0 ) exit(1);
-                                }
                                 if ( !noPrompt )
                                 {
                                         printf( "Press ENTER to continue: " );
@@ -346,7 +266,7 @@ int main(int argc, char **argv)
                                         strcat( outFileName, "$$$" );
                                         if ( ( outFile = fopen( outFileName, "wb" ) ) != NULL )
                                         {
-                                                if ( OutputTGAFile( fp, outFile, &f, &nf, xTGA, &statbuf ) < 0 )
+                                            if ( OutputTGAFile(fp, outFile, &f, &nf, &statbuf) < 0 )
                                                 {
                                                         fclose( outFile );
                                                         remove( outFileName );
@@ -369,7 +289,7 @@ int main(int argc, char **argv)
                         }
                         else
                         {
-                                puts( "Error seeking to end of file for possible extension data." );
+                                puts( "Error reading input file." );
                         }
                         FreeTGAFile( &f );
                         if ( fp != NULL ) fclose( fp );
@@ -935,7 +855,7 @@ TGAFile         *isp;           input TGA structure
 TGAFile         *sp;            output TGA structure
 int             xTGA;           flags input file as new TGA format
 */
-int OutputTGAFile(FILE *ifp, FILE *ofp, TGAFile *isp, TGAFile *sp, int xTGA, struct stat *isbp)
+int OutputTGAFile(FILE *ifp, FILE *ofp, TGAFile *isp, TGAFile *sp, struct stat *isbp)
 {
         long                    byteCount;
         long                    imageByteCount;
@@ -1011,7 +931,7 @@ int OutputTGAFile(FILE *ifp, FILE *ofp, TGAFile *isp, TGAFile *sp, int xTGA, str
                 if ( fseek( ifp, byteCount, SEEK_SET ) != 0 ) return( -1 );
                 byteCount = imageByteCount;
         }
-        else if ( !xTGA )
+        else if ( f.extAreaOffset == 0 )
         {
                 /*
                 ** If the file is not an extended TGA file, we can

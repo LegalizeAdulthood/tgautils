@@ -112,6 +112,18 @@ typedef struct _TGAFile
         char    signature[18];          /* signature string     */
 } TGAFile;
 
+enum ReadErrors
+{
+    TGA_READ_ERROR_NULL_ARGUMENT = -1,
+    TGA_READ_ERROR_READ_ID = -2,
+    TGA_READ_ERROR_SEEK_END = -3,
+    TGA_READ_ERROR_READ_SIGNATURE = -4,
+    TGA_READ_ERROR_BAD_FILE_SIZE = -5,
+    TGA_READ_ERROR_READ_EXTENDED = -6,
+    TGA_READ_ERROR_READ_DEVELOPER_DIRECTORY = -7,
+};
+
+int ReadTGAFile(FILE *fp, TGAFile *sp);
 UINT8 ReadByte(FILE *fp);
 UINT16 ReadShort(FILE *fp);
 UINT32 ReadLong(FILE *);
