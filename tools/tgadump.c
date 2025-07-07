@@ -244,9 +244,7 @@ int main(int argc, char **argv)
                 {
                         puts( "Error seeking to end of file for possible extension data" );
                 }
-                if ( f.devDirs ) free( f.devDirs );
-                if ( f.scanLineTable ) free( f.scanLineTable );
-                if ( f.colorCorrectTable ) free( f.colorCorrectTable );
+                FreeTGAFile( &f );
                 fclose( fp );
         }
         return 0;

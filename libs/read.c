@@ -300,3 +300,27 @@ long CountRLEData(FILE *fp, unsigned int x, unsigned int y, int bytesPerPixel)
     }
     return (n);
 }
+
+void FreeTGAFile(TGAFile *sp)
+{
+    if (sp->devDirs)
+    {
+        free(sp->devDirs);
+        sp->devDirs = NULL;
+    }
+    if (sp->scanLineTable)
+    {
+        free(sp->scanLineTable);
+        sp->scanLineTable = NULL;
+    }
+    if (sp->postStamp)
+    {
+        free(sp->postStamp);
+        sp->postStamp = NULL;
+    }
+    if (sp->colorCorrectTable)
+    {
+        free(sp->colorCorrectTable);
+        sp->colorCorrectTable = NULL;
+    }
+}

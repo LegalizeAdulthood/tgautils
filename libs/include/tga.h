@@ -131,6 +131,8 @@ int RLEncodeRow(char *p, char *q, int n, int bpp);
 
 long CountRLEData(FILE *fp, unsigned int x, unsigned int y, int bytesPerPixel);
 
+void FreeTGAFile(TGAFile *sp);
+
 #ifdef __cplusplus
 }
 #endif
