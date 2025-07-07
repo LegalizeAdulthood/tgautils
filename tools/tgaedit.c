@@ -1638,7 +1638,7 @@ void PrintImageType(int Itype)
 
 void PrintMonth(UINT16 month)
 {
-        if ( month > 0 && month < 13 ) printf( monthStr[month - 1] );
+        if ( month > 0 && month < 13 ) printf( "%s", monthStr[month - 1] );
         else printf( "Month Error" );
 }
 
