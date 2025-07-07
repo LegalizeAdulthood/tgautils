@@ -1,0 +1,31 @@
+Truevision(R) TGA(tm) File Dump Utility Version 1.4 - February 15, 1992
+TGA File: ucm8.tga
+ID Field Length          =  26
+Color Map Type           =   1  (Color Map Data is Present)
+Image Type               =   1
+  Uncompressed Color Mapped Image (e.g., VDA/D, TARGA M8)
+Color Map Origin         = 0x0000 (    0)  (First Index To Be Loaded)
+Color Map Length         = 0x0100 (  256)
+Color Map Entry Size     =     16
+Image X-Origin, Y-Origin =  00000, 00000
+Image Width, Height      =  00128, 00128
+Image Pixel Depth        = 0x0008 (    8)
+Image Descriptor         = 0x0000
+  0 Attribute Bits Per Pixel
+  First Pixel Destination is Bottom Left
+Image ID:
+  Truevision(R) Sample Image
+***** Extended TGA Fields *****
+Truevision TGA File Format Version = 2.0
+Author                             = Ricky True
+Author Comments:
+Sample 8 bit uncompressed color mapped image
+[End of Author Comments]
+Date Image Saved                   = February 24, 1990 at 10:00:00
+Job Name/ID                        = TGA Utilities
+Software ID                        = TGAEdit
+Software Version                   = 1.40 
+Key Color: 0x00(0) Alpha, 0x00(0) Red, 0x00(0) Green, 0x00(0) Blue
+Postage Stamp Offset               = 0x0000422c
+Postage Stamp Width, Height        =  64,  64
+No Alpha Data Present

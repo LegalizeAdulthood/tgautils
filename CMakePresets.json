@@ -33,6 +33,25 @@
       "configurePreset": "default"
     }
   ],
+  "testPresets": [
+    {
+      "name": "settings",
+      "hidden": true,
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "jobs": 4
+      }
+    },
+    {
+      "name": "default",
+      "displayName": "Test with default settings",
+      "inherits": [ "settings" ],
+      "configurePreset": "default",
+      "configuration": "Debug"
+    }
+  ],
   "workflowPresets": [
     {
       "name": "default",
@@ -44,6 +63,10 @@
         },
         {
           "type": "build",
+          "name": "default"
+        },
+        {
+          "type": "test",
           "name": "default"
         }
       ]

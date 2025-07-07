@@ -11,9 +11,14 @@ set_c_standard(99)
 set(TGAUTILS_PROJECT_NAME "TGA Utilities" CACHE "STRING" "Default project name for IDEs")
 project("${TGAUTILS_PROJECT_NAME}" C)
 
+include(CTest)
+
 add_subdirectory(config)
 add_subdirectory(libs)
 add_subdirectory(tools)
+if(BUILD_TESTING)
+    add_subdirectory(images)
+endif()
 
 vs_startup_project(tgadump)
 
