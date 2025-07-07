@@ -310,7 +310,6 @@ int OutputTGAFile(FILE *ifp, /* input file pointer */
     TGAFile *sp)             /* output TGA structure */
 {
         long                    byteCount;
-        unsigned long   fileOffset;
         int                             i;
         int                             bytesPerPixel;
         int                             bCount;
@@ -387,7 +386,6 @@ int OutputTGAFile(FILE *ifp, /* input file pointer */
         byteCount = 18 + sp->idLength;
         if ( fseek( ifp, byteCount, SEEK_SET ) != 0 ) return( -1 );
         byteCount = ((sp->mapWidth + 7) >> 3) * (long)sp->mapLength;
-        fileOffset = 18 + sp->idLength + byteCount;
         while ( byteCount > 0 )
         {
                 if ( byteCount - CBUFSIZE < 0 )
