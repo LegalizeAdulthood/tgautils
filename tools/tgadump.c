@@ -242,7 +242,7 @@ int main(int argc, char **argv)
                                 }
                                 else
                                 {
-                                        printf( "Error seeking to Developer Area, offset = 0x%08lx\n",
+                                        printf( "Error seeking to Developer Area, offset = 0x%08x\n",
                                                 f.devDirOffset );
                                 }
                         }
@@ -351,11 +351,11 @@ void PrintExtendedTGA(TGAFile *sp) /* TGA structure pointer */
 
         if ( sp->versionNum != 0 || sp->versionLet != ' ' )
         {
-                printf( "Software Version                   = %u.%u%c\n",
+                printf( "Software Version                   = %d.%d%c\n",
                         sp->versionNum/100, sp->versionNum % 100, sp->versionLet );
         }
 
-        printf( "Key Color: 0x%02lx(%ld) Alpha, 0x%02lx(%ld) Red, 0x%02lx(%ld) Green, 0x%02lx(%ld) Blue\n",
+        printf( "Key Color: 0x%02x(%u) Alpha, 0x%02x(%u) Red, 0x%02x(%u) Green, 0x%02x(%u) Blue\n",
                 sp->keyColor >> 24, sp->keyColor >> 24,
                 (sp->keyColor >> 16) & 0xff, (sp->keyColor >> 16) & 0xff,
                 (sp->keyColor >> 8) & 0xff, (sp->keyColor >> 8) & 0xff,
@@ -375,7 +375,7 @@ void PrintExtendedTGA(TGAFile *sp) /* TGA structure pointer */
 
         if ( sp->colorCorrectOffset != 0L )
         {
-                printf( "Color Correction Offset            = 0x%08lx\n",
+                printf( "Color Correction Offset            = 0x%08x\n",
                                         sp->colorCorrectOffset);
                 if ( sp->colorCorrectTable )
                 {
@@ -384,14 +384,14 @@ void PrintExtendedTGA(TGAFile *sp) /* TGA structure pointer */
         }
         if ( sp->stampOffset )
         {
-                printf( "Postage Stamp Offset               = 0x%08lx\n",
+                printf( "Postage Stamp Offset               = 0x%08x\n",
                                         sp->stampOffset );
                 printf( "Postage Stamp Width, Height        = %3u, %3u\n",
                                         sp->stampWidth, sp->stampHeight );
         }
         if ( sp->scanLineOffset != 0L )
         {
-                printf( "Scan Line Offset                   = 0x%08lx\n",
+                printf( "Scan Line Offset                   = 0x%08x\n",
                                         sp->scanLineOffset );
                 if ( sp->scanLineTable )
                 {
@@ -493,7 +493,7 @@ void PrintScanLineTable(TGAFile *sp)
         p = sp->scanLineTable;
         for ( n = 0; n < sp->imageHeight; ++n )
         {
-                printf( "Scan Line %6u, Offset 0x%08lx(%8d)\n", n, *p, *p );
+                printf( "Scan Line %6u, Offset 0x%08x(%8u)\n", n, *p, *p );
                 ++p;
         }
 }
@@ -587,7 +587,7 @@ int ReadColorTable(FILE *fp, TGAFile *sp)
         }
         else
         {
-                printf( "Error seeking to Color Correction Table, offset = 0x%08lx\n",
+                printf( "Error seeking to Color Correction Table, offset = 0x%08x\n",
                         sp->colorCorrectOffset );
                 return( -1 );
         }
@@ -658,7 +658,7 @@ int ReadExtendedTGA(FILE *fp, TGAFile *sp)
                         }
                         else
                         {
-                                printf( "Error seeking to Postage Stamp, offset = 0x%08lx\n",
+                                printf( "Error seeking to Postage Stamp, offset = 0x%08x\n",
                                         sp->stampOffset );
                         }
                 }
@@ -671,7 +671,7 @@ int ReadExtendedTGA(FILE *fp, TGAFile *sp)
         }
         else
         {
-                printf( "Error seeking to Extended TGA Area, offset = 0x%08lx\n",
+                printf( "Error seeking to Extended TGA Area, offset = 0x%08x\n",
                         sp->extAreaOffset );
                 return( -1 );
         }
@@ -712,7 +712,7 @@ int ReadScanLineTable(FILE *fp, TGAFile *sp)
         }
         else
         {
-                printf( "Error seeking to Scan Line Table, offset = 0x%08lx\n",
+                printf( "Error seeking to Scan Line Table, offset = 0x%08x\n",
                         sp->scanLineOffset );
                 return( -1 );
         }
