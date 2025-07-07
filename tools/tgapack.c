@@ -255,71 +255,66 @@ int main(int argc, char **argv)
 
 int DisplayImageData(unsigned char *q, int n, int bpp)
 {
-        long i;
-        int j;
-        unsigned char a, b, c;
+    long i;
+    int j;
+    unsigned char a, b, c;
 
-        i = 0;
-        while ( i < n ) 
+    i = 0;
+    while (i < n)
+    {
+        printf("%08lX: ", i);
+        switch (bpp)
         {
-                printf( "%08lX: ", i );
-                switch ( bpp )
-                {
-                case 4:
-                        for ( j = 0; j < 4; ++j )
-                        {
-                                printf( "%08lx ", *(unsigned long *)q );
-                                q += 4;
-                        }
-                        i += 16;
-                        break;
-                case 3:
-                        for ( j = 0; j < 8; ++j )
-                        {
-                                a = *q++;
-                                b = *q++;
-                                c = *q++;
-                                printf( "%02x%02x%02x ", c, b, a );
-                        }
-                        i += 24;
-                        break;
-                case 2:
-                        for ( j = 0; j < 8; ++j )
-                        {
-                                printf( "%04x ", *(unsigned int *)q );
-                                q += 2;
-                        }
-                        i += 16;
-                        break;
-                default:
-                        for ( j = 0; j < 16; ++j )
-                        {
-                                printf( "%02x ", *(unsigned char *)q++ );
-                        }
-                        i += 16;
-                        break;
-                }
-                putchar( '\n' );
+        case 4:
+            for (j = 0; j < 4; ++j)
+            {
+                printf("%08lx ", *(unsigned long *) q);
+                q += 4;
+            }
+            i += 16;
+            break;
+        case 3:
+            for (j = 0; j < 8; ++j)
+            {
+                a = *q++;
+                b = *q++;
+                c = *q++;
+                printf("%02x%02x%02x ", c, b, a);
+            }
+            i += 24;
+            break;
+        case 2:
+            for (j = 0; j < 8; ++j)
+            {
+                printf("%04x ", *(unsigned int *) q);
+                q += 2;
+            }
+            i += 16;
+            break;
+        default:
+            for (j = 0; j < 16; ++j)
+            {
+                printf("%02x ", *(unsigned char *) q++);
+            }
+            i += 16;
+            break;
         }
-        return( 0 );
+        putchar('\n');
+    }
+    return (0);
 }
-
-
 
 int OutputTGAFile(FILE *ifp, /* input file pointer */
     FILE *ofp,               /* output file pointer */
     TGAFile *sp)             /* output TGA structure */
 {
-        long                    byteCount;
-        int                             i;
-        int                             bytesPerPixel;
-        int                             bCount;
-        int                             rleCount;
+        long            byteCount;
+        int             i;
+        int             bytesPerPixel;
+        int             bCount;
+        int             rleCount;
         unsigned char   *imageBuff;
-        unsigned char   *packBuff;
-        unsigned char   outType;
-        unsigned char   outDepth;
-        unsigned char   outDesc;
+        unsigned char *packBuff;
 
         /*
         ** First, we need to determine what operation is to be performed.
@@ -329,57 +324,32 @@ int OutputTGAFile(FILE *ifp, /* input file pointer */
         */
         if ( noAlpha )
         {
-                if ( sp->pixelDepth != 32 || sp->imageType != 2 )
-                {
-                        puts( "Image file must be in 32 bit uncompressed format." );
-                        return( -1 );
-                }
-                else
-                {
-                        outDepth = 24;
-                        outType = sp->imageType;
-                        outDesc = sp->imageDesc & 0xf0;
-                }
+            if ( sp->pixelDepth != 32 || sp->imageType != 2 )
+            {
+                puts( "Image file must be in 32 bit uncompressed format." );
+                return -1;
+            }
+            sp->pixelDepth = 24;
+            sp->imageDesc &= 0xf0;
         }
-        else if ( !unPack && sp->imageType > 0 &&  sp->imageType < 4 )
+        else if ( !unPack && sp->imageType > 0 && sp->imageType < 4 )
         {
-                outType = sp->imageType + 8;
-                outDepth = sp->pixelDepth;
-                outDesc = sp->imageDesc;
+            sp->imageType += 8;
         }
         else if ( unPack && sp->imageType > 8 && sp->imageType < 12 )
         {
-                outType = sp->imageType - 8;
-                outDepth = sp->pixelDepth;
-                outDesc = sp->imageDesc;
+            sp->imageType -= 8;
         }
         else
         {
-                puts( "File type is inconsistent with requested operation." );
-                return( -1 );
+            puts( "File type is inconsistent with requested operation." );
+            return -1;
         }
-        /*
-        ** The output file was just opened, so the first data
-        ** to be written is the standard header based on the
-        ** original TGA specification.
-        */
-        if ( WriteByte( sp->idLength, ofp ) < 0 ) return( -1 );
-        if ( WriteByte( sp->mapType, ofp ) < 0 ) return( -1 );
-        if ( WriteByte( outType, ofp ) < 0 ) return( -1 );
-        if ( WriteShort( sp->mapOrigin, ofp ) < 0 ) return( -1 );
-        if ( WriteShort( sp->mapLength, ofp ) < 0 ) return( -1 );
-        if ( WriteByte( sp->mapWidth, ofp ) < 0 ) return( -1 );
-        if ( WriteShort( sp->xOrigin, ofp ) < 0 ) return( -1 );
-        if ( WriteShort( sp->yOrigin, ofp ) < 0 ) return( -1 );
-        if ( WriteShort( sp->imageWidth, ofp ) < 0 ) return( -1 );
-        if ( WriteShort( sp->imageHeight, ofp ) < 0 ) return( -1 );
-        if ( WriteByte( outDepth, ofp ) < 0 ) return( -1 );
-        if ( WriteByte( outDesc, ofp ) < 0 ) return( -1 );
-        if ( sp->idLength )
+        if ( WriteTGAFile( ofp, sp ) )
         {
-                if ( WriteStr( sp->idString, sp->idLength, ofp ) < 0 )
-                        return( -1 );
+                return -1;
         }
+
         /*
         ** Now we need to copy the color map data from the input file
         ** to the output file.
@@ -403,6 +373,7 @@ int OutputTGAFile(FILE *ifp, /* input file pointer */
                 }
                 byteCount -= CBUFSIZE;
         }
+
         /*
         ** Now process the image data.
         */

@@ -3,29 +3,29 @@
 int WriteByte(UINT8 uc, FILE *fp)
 {
     if (fwrite(&uc, 1, 1, fp) == 1)
-        return (0);
-    return (-1);
+        return 0;
+    return -1;
 }
 
 int WriteShort(UINT16 us, FILE *fp)
 {
     if (fwrite(&us, 2, 1, fp) == 1)
-        return (0);
-    return (-1);
+        return 0;
+    return -1;
 }
 
 int WriteLong(UINT32 ul, FILE *fp)
 {
     if (fwrite(&ul, 4, 1, fp) == 1)
-        return (0);
-    return (-1);
+        return 0;
+    return -1;
 }
 
 int WriteStr(char *p, int n, FILE *fp)
 {
     if (fwrite(p, 1, n, fp) == n)
-        return (0);
-    return (-1);
+        return 0;
+    return -1;
 }
 
 int WriteColorTable(FILE *fp, TGAFile *sp)
@@ -37,9 +37,9 @@ int WriteColorTable(FILE *fp, TGAFile *sp)
     for (n = 0; n < 1024; ++n)
     {
         if (WriteShort(*p++, fp) < 0)
-            return (-1);
+            return -1;
     }
-    return (0);
+    return 0;
 }
 
 /*
@@ -57,7 +57,7 @@ static UINT32 GetPixel(unsigned char *p, int bpp)
         pixel <<= 8;
         pixel |= (unsigned long) *p++;
     }
-    return (pixel);
+    return pixel;
 }
 
 /*
@@ -71,7 +71,7 @@ static int CountDiffPixels(char *p, int bpp, int pixCnt)
 
     n = 0;
     if (pixCnt == 1)
-        return (pixCnt);
+        return pixCnt;
     pixel = GetPixel(p, bpp);
     while (pixCnt > 1)
     {
@@ -84,8 +84,8 @@ static int CountDiffPixels(char *p, int bpp, int pixCnt)
         --pixCnt;
     }
     if (nextPixel == pixel)
-        return (n);
-    return (n + 1);
+        return n;
+    return n + 1;
 }
 
 static int CountSamePixels(char *p, int bpp, int pixCnt)
@@ -106,7 +106,7 @@ static int CountSamePixels(char *p, int bpp, int pixCnt)
         ++n;
         --pixCnt;
     }
-    return (n);
+    return n;
 }
 
 /*
@@ -135,7 +135,7 @@ int RLEncodeRow(char *p, char *q, int n, int bpp)
             /* create a raw packet */
             *q++ = (char) (diffCount - 1);
             n -= diffCount;
-            RLEBufSize += (diffCount * bpp) + 1;
+            RLEBufSize += diffCount * bpp + 1;
             while (diffCount > 0)
             {
                 *q++ = *p++;
@@ -151,7 +151,7 @@ int RLEncodeRow(char *p, char *q, int n, int bpp)
         if (sameCount > 1)
         {
             /* create a RLE packet */
-            *q++ = (char) ((sameCount - 1) | 0x80);
+            *q++ = (char) (sameCount - 1 | 0x80);
             n -= sameCount;
             RLEBufSize += bpp + 1;
             p += (sameCount - 1) * bpp;
@@ -164,5 +164,67 @@ int RLEncodeRow(char *p, char *q, int n, int bpp)
                 *q++ = *p++;
         }
     }
-    return (RLEBufSize);
+    return RLEBufSize;
+}
+
+int WriteTGAFile(FILE *ofp, TGAFile *sp)
+{
+    /*
+    ** The output file was just opened, so the first data
+    ** to be written is the standard header based on the
+    ** original TGA specification.
+    */
+    if (WriteByte(sp->idLength, ofp) < 0)
+    {
+        return -1;
+    }
+    if (WriteByte(sp->mapType, ofp) < 0)
+    {
+        return -1;
+    }
+    if (WriteByte(sp->imageType, ofp) < 0)
+    {
+        return -1;
+    }
+    if (WriteShort(sp->mapOrigin, ofp) < 0)
+    {
+        return -1;
+    }
+    if (WriteShort(sp->mapLength, ofp) < 0)
+    {
+        return -1;
+    }
+    if (WriteByte(sp->mapWidth, ofp) < 0)
+    {
+        return -1;
+    }
+    if (WriteShort(sp->xOrigin, ofp) < 0)
+    {
+        return -1;
+    }
+    if (WriteShort(sp->yOrigin, ofp) < 0)
+    {
+        return -1;
+    }
+    if (WriteShort(sp->imageWidth, ofp) < 0)
+    {
+        return -1;
+    }
+    if (WriteShort(sp->imageHeight, ofp) < 0)
+    {
+        return -1;
+    }
+    if (WriteByte(sp->pixelDepth, ofp) < 0)
+    {
+        return -1;
+    }
+    if (WriteByte(sp->imageDesc, ofp) < 0)
+    {
+        return -1;
+    }
+    if (sp->idLength && WriteStr(sp->idString, sp->idLength, ofp) < 0)
+    {
+        return -1;
+    }
+    return 0;
 }
