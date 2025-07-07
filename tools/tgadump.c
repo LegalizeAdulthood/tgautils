@@ -227,9 +227,9 @@ int main(int argc, char **argv)
                         if ( xTGA && f.devDirOffset )
                         {
                                 puts( "Developer Area Specified:" );
-                                if ( !fseek( fp, f.devDirOffset, SEEK_SET ) )
+                                if ( ReadDeveloperDirectory( fp, &f ) >= 0 )
                                 {
-                                        devDirEntries = ReadShort( fp );
+                                        devDirEntries = f.devTags;
                                         printf( "Developer Directory contains %d Entries\n",
                                                 devDirEntries );
                                 }
@@ -244,6 +244,7 @@ int main(int argc, char **argv)
                 {
                         puts( "Error seeking to end of file for possible extension data" );
                 }
+                if ( f.devDirs ) free( f.devDirs );
                 if ( f.scanLineTable ) free( f.scanLineTable );
                 if ( f.colorCorrectTable ) free( f.colorCorrectTable );
                 fclose( fp );

@@ -121,13 +121,15 @@ int ReadScanLineTable(FILE *fp, TGAFile *sp);
 int ReadRLERow(unsigned char *p, int n, int bpp, FILE *fp);
 int ReadExtendedTGA(FILE *fp, TGAFile *sp);
 int ReadDeveloperDirectory(FILE *fp, TGAFile *sp);
-long CountRLEData(FILE *fp, unsigned int x, unsigned int y, int bytesPerPixel);
+
 int WriteByte(UINT8 uc, FILE *fp);
 int WriteShort(UINT16 us, FILE *fp);
 int WriteLong(UINT32 ul, FILE *fp);
 int WriteStr(char *p, int n, FILE *fp);
 int WriteColorTable(FILE *fp, TGAFile *sp);
 int RLEncodeRow(char *p, char *q, int n, int bpp);
+
+long CountRLEData(FILE *fp, unsigned int x, unsigned int y, int bytesPerPixel);
 
 #ifdef __cplusplus
 }
