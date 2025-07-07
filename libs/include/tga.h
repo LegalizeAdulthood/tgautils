@@ -133,6 +133,7 @@ int WriteLong(UINT32 ul, FILE *fp);
 int WriteStr(char *p, int n, FILE *fp);
 int WriteColorCorrectTable(FILE *fp, TGAFile *sp);
 int WriteTGAFile(FILE *ofp, TGAFile *sp);
+int CopyTGAColormap(TGAFile *sp, FILE *in, FILE *out);
 
 int RLEncodeRow(char *p, char *q, int n, int bpp);
 long CountRLEData(FILE *fp, unsigned int x, unsigned int y, int bytesPerPixel);

@@ -345,34 +345,12 @@ int OutputTGAFile(FILE *ifp, /* input file pointer */
             puts( "File type is inconsistent with requested operation." );
             return -1;
         }
-        if ( WriteTGAFile( ofp, sp ) )
+        if (WriteTGAFile(ofp, sp))
         {
-                return -1;
+            return -1;
         }
 
-        /*
-        ** Now we need to copy the color map data from the input file
-        ** to the output file.
-        */
-        byteCount = 18 + sp->idLength;
-        if ( fseek( ifp, byteCount, SEEK_SET ) != 0 ) return( -1 );
-        byteCount = ((sp->mapWidth + 7) >> 3) * (long)sp->mapLength;
-        while ( byteCount > 0 )
-        {
-                if ( byteCount - CBUFSIZE < 0 )
-                {
-                        fread( copyBuf, 1, (int)byteCount, ifp );
-                        if ( fwrite( copyBuf, 1, (int)byteCount, ofp ) != (int)byteCount )
-                                return( -1 );
-                }
-                else
-                {
-                        fread( copyBuf, 1, CBUFSIZE, ifp );
-                        if ( fwrite( copyBuf, 1, CBUFSIZE, ofp ) != CBUFSIZE )
-                                return( -1 );
-                }
-                byteCount -= CBUFSIZE;
-        }
+        if ( CopyTGAColormap(sp, ifp, ofp) < 0 ) return -1;
 
         /*
         ** Now process the image data.

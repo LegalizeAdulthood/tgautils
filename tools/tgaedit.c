@@ -862,61 +862,20 @@ int OutputTGAFile(FILE *ifp, FILE *ofp, TGAFile *isp, TGAFile *sp, struct stat *
 {
         long                    byteCount;
         long                    imageByteCount;
-        unsigned long   fileOffset;
+        long                    fileOffset;
         int                             i;
         int                             bytesPerPixel;
 
-        /*
-        ** The output file was just opened, so the first data
-        ** to be written is the standard header based on the
-        ** original TGA specification.
-        */
-        if ( WriteByte( sp->idLength, ofp ) < 0 ) return( -1 );
-        if ( WriteByte( sp->mapType, ofp ) < 0 ) return( -1 );
-        if ( WriteByte( sp->imageType, ofp ) < 0 ) return( -1 );
-        if ( WriteShort( sp->mapOrigin, ofp ) < 0 ) return( -1 );
-        if ( WriteShort( sp->mapLength, ofp ) < 0 ) return( -1 );
-        if ( WriteByte( sp->mapWidth, ofp ) < 0 ) return( -1 );
-        if ( WriteShort( sp->xOrigin, ofp ) < 0 ) return( -1 );
-        if ( WriteShort( sp->yOrigin, ofp ) < 0 ) return( -1 );
-        if ( WriteShort( sp->imageWidth, ofp ) < 0 ) return( -1 );
-        if ( WriteShort( sp->imageHeight, ofp ) < 0 ) return( -1 );
-        if ( WriteByte( sp->pixelDepth, ofp ) < 0 ) return( -1 );
-        if ( WriteByte( sp->imageDesc, ofp ) < 0 ) return( -1 );
-        if ( sp->idLength )
-        {
-                if ( WriteStr( sp->idString, sp->idLength, ofp ) < 0 )
-                        return( -1 );
-        }
-        /*
-        ** Now we need to copy the color map data from the input file
-        ** to the output file.
-        */
-        byteCount = 18 + isp->idLength;
-        if ( fseek( ifp, byteCount, SEEK_SET ) != 0 ) return( -1 );
-        byteCount = ((isp->mapWidth + 7) >> 3) * (long)isp->mapLength;
-        fileOffset = 18 + sp->idLength + byteCount;
-        while ( byteCount > 0 )
-        {
-                if ( byteCount - CBUFSIZE < 0 )
-                {
-                        fread( copyBuf, 1, (int)byteCount, ifp );
-                        if ( fwrite( copyBuf, 1, (int)byteCount, ofp ) != (int)byteCount )
-                                return( -1 );
-                }
-                else
-                {
-                        fread( copyBuf, 1, CBUFSIZE, ifp );
-                        if ( fwrite( copyBuf, 1, CBUFSIZE, ofp ) != CBUFSIZE )
-                                return( -1 );
-                }
-                byteCount -= CBUFSIZE;
-        }
+        if ( WriteTGAFile( ofp, sp ) < 0 ) return -1;
+
+        if ( CopyTGAColormap( sp, ifp, ofp ) < 0 ) return -1;
+
         /*
         ** Similarly, the image data can now be copied.
         ** This gets a little trickier since the input image could
         ** be compressed or the file could be in the new TGA format...
         */
+        fileOffset = ftell( ofp );
         bytesPerPixel = (isp->pixelDepth + 7) >> 3;
         if ( isp->imageType > 0 && isp->imageType < 4 )
         {

@@ -1,5 +1,9 @@
 #include <tga.h>
 
+#define CBUFSIZE 2048 /* size of copy buffer */
+
+static char copyBuf[CBUFSIZE];
+
 int WriteByte(UINT8 uc, FILE *fp)
 {
     if (fwrite(&uc, 1, 1, fp) == 1)
@@ -225,6 +229,41 @@ int WriteTGAFile(FILE *ofp, TGAFile *sp)
     if (sp->idLength && WriteStr(sp->idString, sp->idLength, ofp) < 0)
     {
         return -1;
+    }
+    return 0;
+}
+
+int CopyTGAColormap(TGAFile *sp, FILE *in, FILE *out)
+{
+    /*
+     ** Now we need to copy the color map data from the input file
+     ** to the output file.
+     */
+    int byteCount = 18 + sp->idLength;
+    if (fseek(in, byteCount, SEEK_SET) != 0)
+    {
+        return -1;
+    }
+    byteCount = ((sp->mapWidth + 7) >> 3) * (long) sp->mapLength;
+    while (byteCount > 0)
+    {
+        if (byteCount - CBUFSIZE < 0)
+        {
+            fread(copyBuf, 1, (int) byteCount, in);
+            if (fwrite(copyBuf, 1, (int) byteCount, out) != (int) byteCount)
+            {
+                return -1;
+            }
+        }
+        else
+        {
+            fread(copyBuf, 1, CBUFSIZE, in);
+            if (fwrite(copyBuf, 1, CBUFSIZE, out) != CBUFSIZE)
+            {
+                return -1;
+            }
+        }
+        byteCount -= CBUFSIZE;
     }
     return 0;
 }
