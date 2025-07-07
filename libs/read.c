@@ -48,7 +48,8 @@ static int ReadColorTable(FILE *fp, TGAFile *sp)
 
     if (!fseek(fp, sp->colorCorrectOffset, SEEK_SET))
     {
-        if (sp->colorCorrectTable = malloc(1024 * sizeof(UINT16)))
+        sp->colorCorrectTable = malloc(1024 * sizeof(UINT16));
+        if ( sp->colorCorrectTable )
         {
             p = sp->colorCorrectTable;
             for (n = 0; n < 1024; ++n)
@@ -77,7 +78,8 @@ static int ReadScanLineTable(FILE *fp, TGAFile *sp)
 
     if (!fseek(fp, sp->scanLineOffset, SEEK_SET))
     {
-        if (sp->scanLineTable = malloc(sp->imageHeight << 2))
+        sp->scanLineTable = malloc(sp->imageHeight << 2);
+        if (sp->scanLineTable)
         {
             p = sp->scanLineTable;
             for (n = 0; n < sp->imageHeight; ++n)
@@ -241,7 +243,8 @@ static int ReadDeveloperDirectory(FILE *fp, TGAFile *sp)
     if (!fseek(fp, sp->devDirOffset, SEEK_SET))
     {
         sp->devTags = ReadShort(fp);
-        if ((sp->devDirs = malloc(sp->devTags * sizeof(DevDir))) == NULL)
+        sp->devDirs = malloc(sp->devTags * sizeof(DevDir));
+        if ( sp->devDirs == NULL )
         {
             puts("Unable to allocate developer directory.");
             return (-1);

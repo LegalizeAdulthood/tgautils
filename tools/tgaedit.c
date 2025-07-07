@@ -264,7 +264,8 @@ int main(int argc, char **argv)
                                         i = strlen( fileName );
                                         outFileName[ i - 3 ] = '\0';    /* remove extension */
                                         strcat( outFileName, "$$$" );
-                                        if ( ( outFile = fopen( outFileName, "wb" ) ) != NULL )
+                                        outFile = fopen( outFileName, "wb" );
+                                        if ( outFile != NULL )
                                         {
                                             if ( OutputTGAFile(fp, outFile, &f, &nf, &statbuf) < 0 )
                                                 {
@@ -347,14 +348,16 @@ int CreatePostageStamp(FILE *fp, TGAFile *isp, TGAFile *sp)
                 bufSize = bytesPerPixel * sp->imageWidth;
 
                 stampSize = 64 * 64 * bytesPerPixel;
-                if ( ( sp->postStamp = malloc( stampSize ) ) == NULL )
+                sp->postStamp = malloc( stampSize );
+                if ( sp->postStamp == NULL )
                         return( -1 );
                 memset( sp->postStamp, 0, stampSize );
                 fileOffset = 18 + isp->idLength + 
                         ((isp->mapWidth + 7) >> 3) * (long)isp->mapLength;
                 if ( fseek( fp, fileOffset, SEEK_SET ) != 0 ) return( -1 );
 
-                if ( ( rowBuf = malloc( bufSize ) ) != NULL )
+                rowBuf = malloc( bufSize );
+                if ( rowBuf != NULL )
                 {
                         q = sp->postStamp;
                         for ( i = 0; i < maxY; ++i )
@@ -972,7 +975,8 @@ int OutputTGAFile(FILE *ifp, FILE *ofp, TGAFile *isp, TGAFile *sp, struct stat *
         */
         if ( !noDev && isp->devDirOffset != 0 )
         {
-                if ( (sp->devDirs = malloc( sp->devTags * sizeof(DevDir) ) ) == NULL )
+                sp->devDirs = malloc( sp->devTags * sizeof(DevDir) );
+                if ( sp->devDirs == NULL )
                 {
                         puts( "Failed to allocate memory for new developer directory." );
                         return( -1 );

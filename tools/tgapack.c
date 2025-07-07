@@ -211,7 +211,8 @@ int main(int argc, char **argv)
                                         i = strlen( fileName );
                                         outFileName[ i - 3 ] = '\0';    /* remove extension */
                                         strcat( outFileName, "$$$" );
-                                        if ( ( outFile = fopen( outFileName, "wb" ) ) != NULL )
+                                        outFile = fopen( outFileName, "wb" );
+                                        if ( outFile != NULL )
                                         {
                                                 if ( OutputTGAFile( fp, outFile, &f ) < 0 )
                                                 {
@@ -407,7 +408,8 @@ int OutputTGAFile(FILE *ifp, /* input file pointer */
         */
         bytesPerPixel = (sp->pixelDepth + 7) >> 3;
         bCount = sp->imageWidth * bytesPerPixel;
-        if ( (imageBuff = malloc( bCount )) == NULL )
+        imageBuff = malloc( bCount );
+        if ( imageBuff == NULL )
         {
                 puts( "Unable to allocate image buffer" );
                 return( -1 );
@@ -435,7 +437,8 @@ int OutputTGAFile(FILE *ifp, /* input file pointer */
         }
         else if ( !unPack )
         {
-                if ( (packBuff = malloc( sp->imageWidth * (bytesPerPixel + 1) )) == NULL )
+                packBuff = malloc( sp->imageWidth * (bytesPerPixel + 1) );
+                if ( packBuff == NULL )
                 {
                         puts( "Error allocating encoded buffer." );
                         free( imageBuff );
