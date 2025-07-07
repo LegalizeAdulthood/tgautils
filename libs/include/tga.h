@@ -124,23 +124,16 @@ enum ReadErrors
 };
 
 int ReadTGAFile(FILE *fp, TGAFile *sp);
-UINT8 ReadByte(FILE *fp);
-UINT16 ReadShort(FILE *fp);
-UINT32 ReadLong(FILE *);
-void ReadCharField(FILE *fp, char *p, int n);
-int ReadColorTable(FILE *fp, TGAFile *sp);
-int ReadScanLineTable(FILE *fp, TGAFile *sp);
+UINT32 ReadLong(FILE *fp);
 int ReadRLERow(unsigned char *p, int n, int bpp, FILE *fp);
-int ReadExtendedTGA(FILE *fp, TGAFile *sp);
-int ReadDeveloperDirectory(FILE *fp, TGAFile *sp);
 
 int WriteByte(UINT8 uc, FILE *fp);
 int WriteShort(UINT16 us, FILE *fp);
 int WriteLong(UINT32 ul, FILE *fp);
 int WriteStr(char *p, int n, FILE *fp);
 int WriteColorTable(FILE *fp, TGAFile *sp);
-int RLEncodeRow(char *p, char *q, int n, int bpp);
 
+int RLEncodeRow(char *p, char *q, int n, int bpp);
 long CountRLEData(FILE *fp, unsigned int x, unsigned int y, int bytesPerPixel);
 
 void FreeTGAFile(TGAFile *sp);
