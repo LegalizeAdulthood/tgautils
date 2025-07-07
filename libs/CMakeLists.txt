@@ -1,5 +1,6 @@
-add_library(tga INTERFACE
+add_library(tga STATIC
     include/tga.h
+    read.c
 )
-target_include_directories(tga INTERFACE include)
+target_include_directories(tga PUBLIC include)
 target_folder(tga "Libraries")

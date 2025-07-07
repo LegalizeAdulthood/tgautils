@@ -6,6 +6,7 @@
 #ifndef TGA_H
 
 #include <stdint.h>
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -110,6 +111,17 @@ typedef struct _TGAFile
         UINT32  devDirOffset;           /* developer directory offset */
         char    signature[18];          /* signature string     */
 } TGAFile;
+
+UINT8 ReadByte(FILE *fp);
+UINT16 ReadShort(FILE *fp);
+UINT32 ReadLong(FILE *);
+void ReadCharField(FILE *fp, char *p, int n);
+int ReadColorTable(FILE *fp, TGAFile *sp);
+int ReadScanLineTable(FILE *fp, TGAFile *sp);
+int ReadRLERow(unsigned char *p, int n, int bpp, FILE *fp);
+int ReadExtendedTGA(FILE *fp, TGAFile *sp);
+int ReadDeveloperDirectory(FILE *fp, TGAFile *sp);
+long CountRLEData(FILE *fp, unsigned int x, unsigned int y, int bytesPerPixel);
 
 #ifdef __cplusplus
 }

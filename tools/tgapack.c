@@ -47,7 +47,6 @@
 
 extern int      main( int, char ** );
 extern int      CountDiffPixels( char *, int, int );
-extern long     CountRLEData( FILE *, unsigned int, unsigned int, int );
 extern int      CountSamePixels( char *, int, int );
 extern int      DisplayImageData( unsigned char *, int, int );
 extern UINT32   GetPixel( unsigned char *, int );
@@ -55,11 +54,6 @@ extern int      OutputTGAFile( FILE *, FILE *, TGAFile * );
 extern int      ParseArgs( int, char ** );
 extern void     PrintImageType( int );
 extern void     PrintTGAInfo( TGAFile * );
-extern UINT8    ReadByte( FILE * );
-extern void     ReadCharField( FILE *, char *, int );
-extern UINT32   ReadLong( FILE * );
-extern int      ReadRLERow( unsigned char *, int, int, FILE * );
-extern UINT16   ReadShort( FILE * );
 extern int      RLEncodeRow( char *, char *, int, int );
 extern char     *SkipBlank( char * );
 extern void     StripAlpha( unsigned char *, int );
@@ -322,48 +316,6 @@ int CountDiffPixels(char *p, int bpp, int pixCnt)
         }
         if ( nextPixel == pixel ) return( n );
         return( n + 1 );
-}
-
-
-
-long CountRLEData(FILE *fp, unsigned int x, unsigned int y, int bytesPerPixel)
-{
-        long                    n;
-        long                    pixelCount;
-        long                    totalPixels;
-        unsigned int    value;
-
-        n = 0L;
-        pixelCount = 0L;
-        totalPixels = (long)x * (long)y;
-
-        while ( pixelCount < totalPixels )
-        {
-                value = (unsigned int)ReadByte( fp );
-                n++;
-                if ( value & 0x80 )
-                {
-                        n += bytesPerPixel;
-                        pixelCount += (value & 0x7f) + 1;
-                        if ( fread( copyBuf, 1, bytesPerPixel, fp ) != bytesPerPixel )
-                        {
-                                puts( "Error counting RLE data." );
-                                return( 0L );
-                        }
-                }
-                else
-                {
-                        value++;
-                        n += value * bytesPerPixel;
-                        pixelCount += value;
-                        if ( fread( copyBuf, bytesPerPixel, value, fp ) != value )
-                        {
-                                puts( "Error counting raw data." );
-                                return( 0L );
-                        }
-                }
-        }
-        return( n );
 }
 
 
@@ -786,163 +738,6 @@ void PrintTGAInfo(TGAFile *sp) /* TGA structure pointer */
                 printf( "Image ID:\n  " );
                 puts( f.idString );
         }
-}
-
-
-UINT8 ReadByte(FILE *fp)
-{
-        UINT8   value;
-
-        fread( &value, 1, 1, fp );
-        return( value );
-}
-
-
-void ReadCharField(FILE *fp, char *p, int n)
-{
-        while ( n )
-        {
-                *p++ = (char)fgetc( fp );       /* no error check, no char conversion */
-                --n;
-        }
-}
-
-
-
-
-UINT32 ReadLong(FILE *fp)
-{
-        UINT32  value;
-
-        fread( &value, 4, 1, fp );
-        return( value );
-}
-
-
-
-int ReadRLERow(unsigned char *p, int n, /* buffer size in bytes */
-    int bpp,                            /* bytes per pixel */
-    FILE *fp)
-{
-        unsigned int                    value;
-        int                                             i;
-        static unsigned char    *q;
-
-        while ( n > 0 )
-        {
-                if ( inRLEPacket )
-                {
-                        if ( packetSize * bpp > n )
-                        {
-                                value = n / bpp;                /* calculate pixel count */
-                                packetSize -= value;
-                                n = 0;
-                        }
-                        else
-                        {
-                                n -= packetSize * bpp;
-                                value = packetSize;
-                                packetSize = 0;
-                                inRLEPacket = 0;
-                        }
-                        while ( value > 0 )
-                        {
-                                *p++ = rleBuf[0];
-                                if ( bpp > 1 ) *p++ = rleBuf[1];
-                                if ( bpp > 2 ) *p++ = rleBuf[2];
-                                if ( bpp > 3 ) *p++ = rleBuf[3];
-                                value--;
-                        }
-                }
-                else if ( inRawPacket )
-                {
-                        if ( packetSize * bpp > n )
-                        {
-                                value = n;
-                                packetSize -= n / bpp;
-                                n = 0;
-                        }
-                        else
-                        {
-                                value = packetSize * bpp;       /* calculate byte count */
-                                n -= value;
-                                inRawPacket = 0;
-                        }
-                        for ( i = 0; i < value; ++i ) *p++ = *q++;
-                }
-                else
-                {
-                        /*
-                        ** No accumulated data in buffers, so read from file
-                        */
-                        packetSize = (unsigned int)ReadByte( fp );
-                        if ( packetSize & 0x80 )
-                        {
-                                packetSize &= 0x7f;
-                                packetSize++;
-                                if ( packetSize * bpp > n )
-                                {
-                                        value = n / bpp;                /* calculate pixel count */
-                                        packetSize -= value;
-                                        inRLEPacket = 1;
-                                        n = 0;
-                                }
-                                else
-                                {
-                                        n -= packetSize * bpp;
-                                        value = packetSize;
-                                }
-                                if ( fread( rleBuf, 1, bpp, fp ) != bpp ) return( -1 );
-                                while ( value > 0 )
-                                {
-                                        *p++ = rleBuf[0];
-                                        if ( bpp > 1 ) *p++ = rleBuf[1];
-                                        if ( bpp > 2 ) *p++ = rleBuf[2];
-                                        if ( bpp > 3 ) *p++ = rleBuf[3];
-                                        value--;
-                                }
-                        }
-                        else
-                        {
-                                packetSize++;
-                                /*
-                                ** Maximum for packetSize is 128 so as long as RLEBUFSIZ
-                                ** is at least 512, and bpp is not greater than 4
-                                ** we can read in the entire raw packet with one operation.
-                                */
-                                if ( fread( rleBuf, bpp, packetSize, fp ) != packetSize )
-                                        return( -1 );
-                                /*
-                                ** But is there enough room to copy them to our line buffer?
-                                */
-                                if ( packetSize * bpp > n )
-                                {
-                                        value = n;                              /* number of bytes remaining */
-                                        packetSize -= n / bpp;
-                                        inRawPacket = 1;
-                                        n = 0;
-                                }
-                                else
-                                {
-                                        value = packetSize * bpp;       /* calculate byte count */
-                                        n -= value;
-                                }
-                                for ( i = 0, q = rleBuf; i < value; ++i ) *p++ = *q++;
-                        }
-                }
-        }
-        return( 0 );
-}
-
-
-
-
-UINT16 ReadShort(FILE *fp)
-{
-        UINT16  value;
-
-        fread( &value, 2, 1, fp );
-        return( value );
 }
 
 
