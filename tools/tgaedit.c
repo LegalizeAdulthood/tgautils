@@ -1123,7 +1123,7 @@ int OutputTGAFile(FILE *ifp, FILE *ofp, TGAFile *isp, TGAFile *sp, struct stat *
         if ( !noColor && sp->colorCorrectTable != NULL )
         {
                 sp->colorCorrectOffset = fileOffset;
-                if ( WriteColorTable( ofp, sp ) < 0 ) return( -1 );
+                if ( WriteColorCorrectTable( ofp, sp ) < 0 ) return( -1 );
                 fileOffset += 1024 * sizeof(UINT16);
         }
 

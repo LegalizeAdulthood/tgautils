@@ -28,7 +28,7 @@ int WriteStr(char *p, int n, FILE *fp)
     return -1;
 }
 
-int WriteColorTable(FILE *fp, TGAFile *sp)
+int WriteColorCorrectTable(FILE *fp, TGAFile *sp)
 {
     UINT16 *p;
     UINT16 n;
