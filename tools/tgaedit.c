@@ -201,7 +201,7 @@ void main(int argc, char **argv)
         {
                 puts( versionStr );
                 printf( "Enter name of file to examine: " );
-                gets( fileName );
+                fgets( fileName, sizeof( fileName ), stdin );
                 if ( strlen( fileName ) == 0 ) exit(0);
                 fileCount = 1;
         }
@@ -343,7 +343,7 @@ void main(int argc, char **argv)
                                 if ( !noPrompt )
                                 {
                                         printf( "Press ENTER to continue: " );
-                                        gets( outFileName );
+                                        fgets( outFileName, sizeof( outFileName ), stdin );
                                 }
                                 /*
                                 ** Now that we have gathered all this data from the input
