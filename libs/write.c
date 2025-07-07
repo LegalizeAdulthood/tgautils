@@ -4,35 +4,35 @@
 
 static char copyBuf[CBUFSIZE];
 
-int WriteByte(UINT8 uc, FILE *fp)
+int WriteByte(FILE *fp, UINT8 uc)
 {
     if (fwrite(&uc, 1, 1, fp) == 1)
         return 0;
     return -1;
 }
 
-int WriteShort(UINT16 us, FILE *fp)
+int WriteShort(FILE *fp, UINT16 us)
 {
     if (fwrite(&us, 2, 1, fp) == 1)
         return 0;
     return -1;
 }
 
-int WriteLong(UINT32 ul, FILE *fp)
+int WriteLong(FILE *fp, UINT32 ul)
 {
     if (fwrite(&ul, 4, 1, fp) == 1)
         return 0;
     return -1;
 }
 
-int WriteStr(char *p, int n, FILE *fp)
+int WriteStr(FILE *fp, char *p, int n)
 {
     if (fwrite(p, 1, n, fp) == n)
         return 0;
     return -1;
 }
 
-int WriteColorCorrectTable(FILE *fp, TGAFile *sp)
+int WriteColorCorrectTable(TGAFile *sp, FILE *fp)
 {
     UINT16 *p;
     UINT16 n;
@@ -40,7 +40,7 @@ int WriteColorCorrectTable(FILE *fp, TGAFile *sp)
     p = sp->colorCorrectTable;
     for (n = 0; n < 1024; ++n)
     {
-        if (WriteShort(*p++, fp) < 0)
+        if (WriteShort(fp, *p++) < 0)
             return -1;
     }
     return 0;
@@ -171,62 +171,62 @@ int RLEncodeRow(char *p, char *q, int n, int bpp)
     return RLEBufSize;
 }
 
-int WriteTGAFile(FILE *ofp, TGAFile *sp)
+int WriteTGAFile(TGAFile *sp, FILE *ofp)
 {
     /*
     ** The output file was just opened, so the first data
     ** to be written is the standard header based on the
     ** original TGA specification.
     */
-    if (WriteByte(sp->idLength, ofp) < 0)
+    if (WriteByte(ofp, sp->idLength) < 0)
     {
         return -1;
     }
-    if (WriteByte(sp->mapType, ofp) < 0)
+    if (WriteByte(ofp, sp->mapType) < 0)
     {
         return -1;
     }
-    if (WriteByte(sp->imageType, ofp) < 0)
+    if (WriteByte(ofp, sp->imageType) < 0)
     {
         return -1;
     }
-    if (WriteShort(sp->mapOrigin, ofp) < 0)
+    if (WriteShort(ofp, sp->mapOrigin) < 0)
     {
         return -1;
     }
-    if (WriteShort(sp->mapLength, ofp) < 0)
+    if (WriteShort(ofp, sp->mapLength) < 0)
     {
         return -1;
     }
-    if (WriteByte(sp->mapWidth, ofp) < 0)
+    if (WriteByte(ofp, sp->mapWidth) < 0)
     {
         return -1;
     }
-    if (WriteShort(sp->xOrigin, ofp) < 0)
+    if (WriteShort(ofp, sp->xOrigin) < 0)
     {
         return -1;
     }
-    if (WriteShort(sp->yOrigin, ofp) < 0)
+    if (WriteShort(ofp, sp->yOrigin) < 0)
     {
         return -1;
     }
-    if (WriteShort(sp->imageWidth, ofp) < 0)
+    if (WriteShort(ofp, sp->imageWidth) < 0)
     {
         return -1;
     }
-    if (WriteShort(sp->imageHeight, ofp) < 0)
+    if (WriteShort(ofp, sp->imageHeight) < 0)
     {
         return -1;
     }
-    if (WriteByte(sp->pixelDepth, ofp) < 0)
+    if (WriteByte(ofp, sp->pixelDepth) < 0)
     {
         return -1;
     }
-    if (WriteByte(sp->imageDesc, ofp) < 0)
+    if (WriteByte(ofp, sp->imageDesc) < 0)
     {
         return -1;
     }
-    if (sp->idLength && WriteStr(sp->idString, sp->idLength, ofp) < 0)
+    if (sp->idLength && WriteStr(ofp, sp->idString, sp->idLength) < 0)
     {
         return -1;
     }

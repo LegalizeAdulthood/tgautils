@@ -368,7 +368,7 @@ int CreatePostageStamp(FILE *fp, TGAFile *isp, TGAFile *sp)
                                 }
                                 else if ( sp->imageType > 8 && sp->imageType < 12 )
                                 {
-                                        if ( ReadRLERow( rowBuf, bufSize, bytesPerPixel, fp ) < 0 )
+                                        if ( ReadRLERow(fp, rowBuf, bufSize, bytesPerPixel) < 0 )
                                         {
                                                 puts( "Error reading RLE data during stamp creation." );
                                                 return( -1 );
@@ -866,7 +866,7 @@ int OutputTGAFile(FILE *ifp, FILE *ofp, TGAFile *isp, TGAFile *sp, struct stat *
         int                             i;
         int                             bytesPerPixel;
 
-        if ( WriteTGAFile( ofp, sp ) < 0 ) return -1;
+        if ( WriteTGAFile(sp, ofp) < 0 ) return -1;
 
         if ( CopyTGAColormap( sp, ifp, ofp ) < 0 ) return -1;
 
@@ -969,7 +969,7 @@ int OutputTGAFile(FILE *ifp, FILE *ofp, TGAFile *isp, TGAFile *sp, struct stat *
                         }
                 }
                 sp->devDirOffset = fileOffset;
-                WriteShort( sp->devTags, ofp );
+                WriteShort(ofp, sp->devTags);
                 byteCount = (long)sp->devTags * sizeof( DevDir );
                 if ( (long)fwrite( sp->devDirs, 1, (int)byteCount, ofp ) != byteCount )
                 {
@@ -998,7 +998,7 @@ int OutputTGAFile(FILE *ifp, FILE *ofp, TGAFile *isp, TGAFile *sp, struct stat *
                 sp->scanLineOffset = fileOffset;
                 for ( i = 0; i < sp->imageHeight; ++i )
                 {
-                        if ( WriteLong( ReadLong( ifp ), ofp ) < 0 ) return( -1 );
+                        if ( WriteLong(ofp, ReadLong(ifp)) < 0 ) return( -1 );
                 }
                 fileOffset += sp->imageHeight * sizeof( UINT32 );
         }
@@ -1048,8 +1048,8 @@ int OutputTGAFile(FILE *ifp, FILE *ofp, TGAFile *isp, TGAFile *sp, struct stat *
                                 if ( CreatePostageStamp( ifp, isp, sp ) >= 0 && sp->postStamp )
                                 {
                                         sp->stampOffset = fileOffset;
-                                        WriteByte( sp->stampWidth, ofp );
-                                        WriteByte( sp->stampHeight, ofp );
+                                        WriteByte(ofp, sp->stampWidth);
+                                        WriteByte(ofp, sp->stampHeight);
                                         i = sp->stampWidth * sp->stampHeight *
                                                 bytesPerPixel;
                                         fileOffset += i + 2;
@@ -1082,7 +1082,7 @@ int OutputTGAFile(FILE *ifp, FILE *ofp, TGAFile *isp, TGAFile *sp, struct stat *
         if ( !noColor && sp->colorCorrectTable != NULL )
         {
                 sp->colorCorrectOffset = fileOffset;
-                if ( WriteColorCorrectTable( ofp, sp ) < 0 ) return( -1 );
+                if ( WriteColorCorrectTable(sp, ofp) < 0 ) return( -1 );
                 fileOffset += 1024 * sizeof(UINT16);
         }
 
@@ -1090,42 +1090,42 @@ int OutputTGAFile(FILE *ifp, FILE *ofp, TGAFile *isp, TGAFile *sp, struct stat *
         ** Output TGA extension area - version 2.0 format
         */
         sp->extAreaOffset = fileOffset;
-        if ( WriteShort( EXT_SIZE_20, ofp ) < 0 ) return( -1 );
-        if ( WriteStr( sp->author, 41, ofp ) < 0 ) return( -1 );
-        if ( WriteStr( &sp->authorCom[0][0], 81, ofp ) < 0 ) return( -1 );
-        if ( WriteStr( &sp->authorCom[1][0], 81, ofp ) < 0 ) return( -1 );
-        if ( WriteStr( &sp->authorCom[2][0], 81, ofp ) < 0 ) return( -1 );
-        if ( WriteStr( &sp->authorCom[3][0], 81, ofp ) < 0 ) return( -1 );
-        if ( WriteShort( sp->month, ofp ) < 0 ) return( -1 );
-        if ( WriteShort( sp->day, ofp ) < 0 ) return( -1 );
-        if ( WriteShort( sp->year, ofp ) < 0 ) return( -1 );
-        if ( WriteShort( sp->hour, ofp ) < 0 ) return( -1 );
-        if ( WriteShort( sp->minute, ofp ) < 0 ) return( -1 );
-        if ( WriteShort( sp->second, ofp ) < 0 ) return( -1 );
-        if ( WriteStr( sp->jobID, 41, ofp ) < 0 ) return( -1 );
-        if ( WriteShort( sp->jobHours, ofp ) < 0 ) return( -1 );
-        if ( WriteShort( sp->jobMinutes, ofp ) < 0 ) return( -1 );
-        if ( WriteShort( sp->jobSeconds, ofp ) < 0 ) return( -1 );
-        if ( WriteStr( sp->softID, 41, ofp ) < 0 ) return( -1 );
-        if ( WriteShort( sp->versionNum, ofp ) < 0 ) return( -1 );
+        if ( WriteShort(ofp, EXT_SIZE_20) < 0 ) return( -1 );
+        if ( WriteStr(ofp, sp->author, 41) < 0 ) return( -1 );
+        if ( WriteStr(ofp, &sp->authorCom[0][0], 81) < 0 ) return( -1 );
+        if ( WriteStr(ofp, &sp->authorCom[1][0], 81) < 0 ) return( -1 );
+        if ( WriteStr(ofp, &sp->authorCom[2][0], 81) < 0 ) return( -1 );
+        if ( WriteStr(ofp, &sp->authorCom[3][0], 81) < 0 ) return( -1 );
+        if ( WriteShort(ofp, sp->month) < 0 ) return( -1 );
+        if ( WriteShort(ofp, sp->day) < 0 ) return( -1 );
+        if ( WriteShort(ofp, sp->year) < 0 ) return( -1 );
+        if ( WriteShort(ofp, sp->hour) < 0 ) return( -1 );
+        if ( WriteShort(ofp, sp->minute) < 0 ) return( -1 );
+        if ( WriteShort(ofp, sp->second) < 0 ) return( -1 );
+        if ( WriteStr(ofp, sp->jobID, 41) < 0 ) return( -1 );
+        if ( WriteShort(ofp, sp->jobHours) < 0 ) return( -1 );
+        if ( WriteShort(ofp, sp->jobMinutes) < 0 ) return( -1 );
+        if ( WriteShort(ofp, sp->jobSeconds) < 0 ) return( -1 );
+        if ( WriteStr(ofp, sp->softID, 41) < 0 ) return( -1 );
+        if ( WriteShort(ofp, sp->versionNum) < 0 ) return( -1 );
         if ( sp->versionLet == '\0' ) sp->versionLet = ' ';
-        if ( WriteByte( sp->versionLet, ofp ) < 0 ) return( -1 );
-        if ( WriteLong( sp->keyColor, ofp ) < 0 ) return( -1 );
-        if ( WriteShort( sp->pixNumerator, ofp ) < 0 ) return( -1 );
-        if ( WriteShort( sp->pixDenominator, ofp ) < 0 ) return( -1 );
-        if ( WriteShort( sp->gammaNumerator, ofp ) < 0 ) return( -1 );
-        if ( WriteShort( sp->gammaDenominator, ofp ) < 0 ) return( -1 );
-        if ( WriteLong( sp->colorCorrectOffset, ofp ) < 0 ) return( -1 );
-        if ( WriteLong( sp->stampOffset, ofp ) < 0 ) return( -1 );
-        if ( WriteLong( sp->scanLineOffset, ofp ) < 0 ) return( -1 );
-        if ( WriteByte( sp->alphaAttribute, ofp ) < 0 ) return( -1 );
+        if ( WriteByte(ofp, sp->versionLet) < 0 ) return( -1 );
+        if ( WriteLong(ofp, sp->keyColor) < 0 ) return( -1 );
+        if ( WriteShort(ofp, sp->pixNumerator) < 0 ) return( -1 );
+        if ( WriteShort(ofp, sp->pixDenominator) < 0 ) return( -1 );
+        if ( WriteShort(ofp, sp->gammaNumerator) < 0 ) return( -1 );
+        if ( WriteShort(ofp, sp->gammaDenominator) < 0 ) return( -1 );
+        if ( WriteLong(ofp, sp->colorCorrectOffset) < 0 ) return( -1 );
+        if ( WriteLong(ofp, sp->stampOffset) < 0 ) return( -1 );
+        if ( WriteLong(ofp, sp->scanLineOffset) < 0 ) return( -1 );
+        if ( WriteByte(ofp, sp->alphaAttribute) < 0 ) return( -1 );
 
         /*
         ** For now, simply output extended tag info
         */
-        if ( WriteLong( sp->extAreaOffset, ofp ) < 0 ) return( -1 );
-        if ( WriteLong( sp->devDirOffset, ofp ) < 0 ) return( -1 );
-        if ( WriteStr( "TRUEVISION-XFILE.\0", 18, ofp ) < 0 ) return( -1 );
+        if ( WriteLong(ofp, sp->extAreaOffset) < 0 ) return( -1 );
+        if ( WriteLong(ofp, sp->devDirOffset) < 0 ) return( -1 );
+        if ( WriteStr(ofp, "TRUEVISION-XFILE.\0", 18) < 0 ) return( -1 );
         return( 0 );
 }
 

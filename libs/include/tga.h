@@ -125,14 +125,14 @@ enum ReadErrors
 
 int ReadTGAFile(FILE *fp, TGAFile *sp);
 UINT32 ReadLong(FILE *fp);
-int ReadRLERow(unsigned char *p, int n, int bpp, FILE *fp);
+int ReadRLERow(FILE *fp, unsigned char *p, int n, int bpp);
 
-int WriteByte(UINT8 uc, FILE *fp);
-int WriteShort(UINT16 us, FILE *fp);
-int WriteLong(UINT32 ul, FILE *fp);
-int WriteStr(char *p, int n, FILE *fp);
-int WriteColorCorrectTable(FILE *fp, TGAFile *sp);
-int WriteTGAFile(FILE *ofp, TGAFile *sp);
+int WriteByte(FILE *fp, UINT8 uc);
+int WriteShort(FILE *fp, UINT16 us);
+int WriteLong(FILE *fp, UINT32 ul);
+int WriteStr(FILE *fp, char *p, int n);
+int WriteColorCorrectTable(TGAFile *sp, FILE *fp);
+int WriteTGAFile(TGAFile *sp, FILE *ofp);
 int CopyTGAColormap(TGAFile *sp, FILE *in, FILE *out);
 
 int RLEncodeRow(char *p, char *q, int n, int bpp);

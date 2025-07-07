@@ -105,7 +105,7 @@ static int ReadScanLineTable(FILE *fp, TGAFile *sp)
     int             n;              buffer size in bytes
     int             bpp;            bytes per pixel
  */
-int ReadRLERow(unsigned char *p, int n, int bpp, FILE *fp)
+int ReadRLERow(FILE *fp, unsigned char *p, int n, int bpp)
 {
     unsigned int value;
     int i;

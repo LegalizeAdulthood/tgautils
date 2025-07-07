@@ -345,7 +345,7 @@ int OutputTGAFile(FILE *ifp, /* input file pointer */
             puts( "File type is inconsistent with requested operation." );
             return -1;
         }
-        if (WriteTGAFile(ofp, sp))
+        if (WriteTGAFile(sp, ofp))
         {
             return -1;
         }
@@ -421,7 +421,7 @@ int OutputTGAFile(FILE *ifp, /* input file pointer */
                 */
                 for ( i = 0; i < sp->imageHeight; ++i )
                 {
-                        if ( ReadRLERow( imageBuff, bCount, bytesPerPixel, ifp ) < 0 )
+                        if ( ReadRLERow(ifp, imageBuff, bCount, bytesPerPixel) < 0 )
                         {
                                 puts("Error reading RLE data." );
                                 free( imageBuff );
